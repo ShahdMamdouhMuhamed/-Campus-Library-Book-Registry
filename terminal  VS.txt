@@ -1,0 +1,4 @@
+# 1. شغل Ganache (افتح البرنامج واعمل Quickstart)
+# 2. في PowerShell، شغل الأمر ده:
+
+C:\Users\DELL\AppData\Local\Programs\Python\Python313\python.exe LibraryApp.py
