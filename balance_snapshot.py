@@ -4,7 +4,7 @@ from web3 import Web3
 from web3.middleware import ExtraDataToPOAMiddleware
 
 # ====================== CONFIG ======================
-RPC_URL = "http://127.0.0.1:8545"
+RPC_URL = "http://127.0.0.1:7545"
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
 w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 

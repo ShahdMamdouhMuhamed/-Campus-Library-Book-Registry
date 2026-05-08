@@ -172,7 +172,7 @@ The `--deterministic` flag ensures the same accounts are generated every run. Co
 Open `config/settings.py` and fill in:
 
 ```python
-GANACHE_URL = "http://127.0.0.1:8545"
+GANACHE_URL = "http://127.0.0.1:7545"
 ADMIN_PRIVATE_KEY = "0x..."   # Paste first account's private key here
 ADMIN_ADDRESS = "0x..."       # Paste first account's address here
 

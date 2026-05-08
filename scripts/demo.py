@@ -149,7 +149,7 @@ class DemoRunner:
         🔧 CONFIGURATION CHECKLIST
         ───────────────────────────────────────────────────────────────
         ✓ Network ID: 1337
-        ✓ RPC URL: http://127.0.0.1:8545
+        ✓ RPC URL: http://127.0.0.1:7545
         ✓ Accounts: At least 5 (admin + 4 test users)
         ✓ Initial Balance: 100 ETH per account
         ✓ Gas Limit: 8000000
