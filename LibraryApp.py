@@ -1,23 +1,25 @@
 import json
+import sys
+from pathlib import Path
 from web3 import Web3
 from web3.middleware import ExtraDataToPOAMiddleware
 
-# ====================== CONFIG ======================
-RPC_URL = "http://127.0.0.1:8545"
-w3 = Web3(Web3.HTTPProvider(RPC_URL))
-w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
+sys.path.append(str(Path(__file__).resolve().parent))
+from config.settings import GANACHE_URL, LIBRARY_ADDRESS, COIN_ADDRESS, LIBRARY_ABI_PATH, COIN_ABI_PATH
 
-LIBRARY_ADDRESS = "0xCa8CAb5759707cFDCC0ce977388Ed7DbFEe211f6"
-COIN_ADDRESS = "0x7FDFfe4F7E1Fe07c327c4909901bb94576cd499C"
+# ====================== CONFIG ======================
+w3 = Web3(Web3.HTTPProvider(GANACHE_URL))
+w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 
 # Load ABIs
 def load_abi(name):
     try:
-        with open(f'artifacts/{name}.json', 'r', encoding='utf-8') as f:
+        abi_path = Path(__file__).parent / 'artifacts' / f'{name}.json'
+        with open(abi_path, 'r', encoding='utf-8') as f:
             abi = json.load(f)
             return abi if isinstance(abi, list) else abi.get('abi', abi)
-    except:
-        print(f" Cannot load {name}.json")
+    except Exception as exc:
+        print(f" Cannot load {name}.json: {exc}")
         return []
 
 library_abi = load_abi("Library")
@@ -100,16 +102,19 @@ def show_activity_history(address):
         try:
             block = w3.eth.get_block(block_num, full_transactions=True)
             for tx in block.transactions:
-                if tx['to'] in [LIBRARY_ADDRESS.lower(), COIN_ADDRESS.lower()]:
+                tx_to = tx['to']
+                if tx_to and tx_to.lower() in {
+                    LIBRARY_ADDRESS.lower(),
+                    COIN_ADDRESS.lower()
+                }:
                     try:
                         receipt = w3.eth.get_transaction_receipt(tx['hash'])
-                        # Check events (simplified)
                         if receipt:
                             print(f"{block_num:<8} {'Transaction':<20} {tx['hash'].hex()[:20]}...")
                             count += 1
-                    except:
+                    except Exception:
                         pass
-        except:
+        except Exception:
             pass
     
     if count == 0:

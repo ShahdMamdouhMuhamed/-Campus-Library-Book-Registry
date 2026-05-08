@@ -6,7 +6,7 @@ from solcx import compile_source, install_solc
 # CONNECT TO GANACHE
 # ============================================
 
-GANACHE_URL = "http://127.0.0.1:8545"
+GANACHE_URL = "http://127.0.0.1:7545"
 
 w3 = Web3(Web3.HTTPProvider(GANACHE_URL))
 
@@ -18,7 +18,9 @@ print(" Connected to Ganache")
 # INSTALL SOLIDITY COMPILER
 # ============================================
 
-install_solc("0.8.20")
+install_solc("0.8.19")
+print(" Solidity 0.8.19 installed")
+
 
 # ============================================
 # READ CONTRACT FILES
@@ -30,19 +32,33 @@ with open("artifacts/Library.sol", "r", encoding="utf-8") as f:
 with open("artifacts/LibraryCoin.sol", "r", encoding="utf-8") as f:
     coin_source = f.read()
 
+print(" Contract sources loaded")
+
 # ============================================
 # COMPILE CONTRACTS
 # ============================================
 
-compiled_library = compile_source(
-    library_source,
-    solc_version="0.8.20"
-)
+try:
+    compiled_library = compile_source(
+        library_source,
+        solc_version="0.8.19",
+        optimize_runs=200
+    )
+    print(" Library.sol compiled successfully")
+except Exception as e:
+    print(f" Error compiling Library.sol: {e}")
+    raise
 
-compiled_coin = compile_source(
-    coin_source,
-    solc_version="0.8.20"
-)
+try:
+    compiled_coin = compile_source(
+        coin_source,
+        solc_version="0.8.19",
+        optimize_runs=200
+    )
+    print(" LibraryCoin.sol compiled successfully")
+except Exception as e:
+    print(f" Error compiling LibraryCoin.sol: {e}")
+    raise
 
 # ============================================
 # GET CONTRACT INTERFACES
@@ -84,12 +100,17 @@ Library = w3.eth.contract(
     bytecode=library_interface['bin']
 )
 
-tx_hash = Library.constructor().transact({
-    'from': account,
-    'gas': 5000000
-})
-
-tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+try:
+    tx_hash = Library.constructor().transact({
+        'from': account,
+        'gas': 6000000,
+        'gasPrice': w3.eth.gas_price
+    })
+    print(f" Library deployment tx: {tx_hash.hex()}")
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
+except Exception as e:
+    print(f" Error deploying Library contract: {e}")
+    raise
 
 library_address = tx_receipt.contractAddress
 
@@ -104,16 +125,21 @@ Coin = w3.eth.contract(
     bytecode=coin_interface['bin']
 )
 
-tx_hash2 = Coin.constructor().transact({
-    'from': account,
-    'gas': 5000000
-})
+try:
+    tx_hash = Coin.constructor().transact({
+        'from': account,
+        'gas': 6000000,
+        'gasPrice': w3.eth.gas_price
+    })
+    print(f" LibraryCoin deployment tx: {tx_hash.hex()}")
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
+except Exception as e:
+    print(f" Error deploying LibraryCoin contract: {e}")
+    raise
 
-tx_receipt2 = w3.eth.wait_for_transaction_receipt(tx_hash2)
+coin_address = tx_receipt.contractAddress
 
-coin_address = tx_receipt2.contractAddress
-
-print(f" Coin deployed at: {coin_address}")
+print(f" LibraryCoin deployed at: {coin_address}")
 
 # ============================================
 # SAVE ADDRESSES

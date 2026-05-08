@@ -1,6 +1,43 @@
-GANACHE_URL = "http://127.0.0.1:8545"
-ADMIN_PRIVATE_KEY = "0xa45e50749fa0efd5559fa6cc3f2b065a92cc62fd02024ca9453fa47aa87ddb51"
-ADMIN_ADDRESS = "0x3345154eE8413E62C76335772E3Afe9b519df7BB"
+import json
+import os
+from pathlib import Path
 
-REGISTRY_CONTRACT_ADDRESS = "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab"
-COIN_CONTRACT_ADDRESS = "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24"
+# ==================== GANACHE ====================
+GANACHE_URL = os.getenv("GANACHE_URL", "http://127.0.0.1:7545")
+
+# ==================== FILE PATHS ====================
+PROJECT_ROOT = Path(__file__).parent.parent
+LIBRARY_ABI_PATH = PROJECT_ROOT / "artifacts" / "Library.json"
+COIN_ABI_PATH = PROJECT_ROOT / "artifacts" / "LibraryCoin.json"
+
+# ==================== CONTRACT ADDRESSES ====================
+# Load from api.txt (updated by deploy.py)
+def load_addresses():
+    api_file = PROJECT_ROOT / "api.txt"
+    if api_file.exists():
+        with open(api_file, 'r') as f:
+            lines = f.readlines()
+            addresses = {}
+            for line in lines:
+                if '=' in line:
+                    key, value = line.strip().split('=', 1)
+                    addresses[key.strip()] = value.strip()
+            return addresses
+    return {}
+
+_addresses = load_addresses()
+LIBRARY_ADDRESS = _addresses.get('LIBRARY_ADDRESS', '0x0000000000000000000000000000000000000000')
+COIN_ADDRESS = _addresses.get('COIN_ADDRESS', '0x0000000000000000000000000000000000000000')
+REGISTRY_CONTRACT_ADDRESS = LIBRARY_ADDRESS
+COIN_CONTRACT_ADDRESS = COIN_ADDRESS
+
+# ==================== ADMIN ACCOUNT ====================
+ADMIN_ADDRESS = os.getenv("ADMIN_ADDRESS", "0x0000000000000000000000000000000000000000")
+ADMIN_PRIVATE_KEY = os.getenv("ADMIN_PRIVATE_KEY", "0x...")  # Set via environment if needed
+
+
+CONTRACT_ADDRESSES = {
+    "Library": LIBRARY_ADDRESS,
+    "LibraryCoin": COIN_ADDRESS,
+    "admin": ADMIN_ADDRESS,
+}

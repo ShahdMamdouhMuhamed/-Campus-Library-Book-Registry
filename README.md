@@ -14,6 +14,7 @@ Built with **Solidity**, **Ganache**, and **web3.py** as part of the *Technologi
 - [Project Structure](#project-structure)
 - [Setup Instructions](#setup-instructions)
 - [How to Run](#how-to-run)
+- [Security & Monitoring](#security--monitoring) ⭐ **NEW**
 - [Roles](#roles)
 - [Smart Contracts](#smart-contracts)
 - [Team](#team)
@@ -81,23 +82,24 @@ library_registry/
 │
 ├── scripts/                       # Python automation scripts
 │   ├── deploy.py                  # Deploy contracts + seed sample data
-│   ├── admin_dashboard.py         # Print system summary from blockchain
-│   ├── data_history_report.py     # Most-borrowed books report
-│   ├── balance_snapshot.py        # Export all balances to CSV
-│   ├── alert_monitor.py           # Live background alert system
-│   ├── security_test.py           # Automated onlyOwner revert test
-│   └── ownership_transfer_test.py # Transfer ownership + re-test script
+│   ├── demo.py                    # ⭐ NEW: Complete demo guide (Member 5)
+│   └── (additional scripts)
 │
-├── app/                           # Terminal application
-│   ├── main.py                    # Entry point
-│   ├── menu.py                    # Menu loop + admin gate
-│   ├── tx_sender.py               # Transaction wrappers (send + receipt)
-│   ├── user_profile.py            # Registration + activity history
-│   └── balance_checker.py         # Coin & ETH balance display
+├── artifacts/
+│   ├── Library.sol                # Core contract
+│   ├── LibraryCoin.sol            # ERC-20 token
+│   │
+│   └── 📁 analytics/
+│       ├── security_tests.py      # ⭐ NEW: Automated security tests (Member 5)
+│       ├── live_alert_monitor.py  # ⭐ NEW: Real-time event monitoring (Member 5)
+│       ├── integration_tests.py   # ⭐ NEW: End-to-end workflow tests (Member 5)
+│       ├── admin_dashboard.py     # Admin statistics dashboard
+│       ├── history_report.py      # Borrow history report
+│       └── personal_history.py    # User activity history
 │
-├── abi/                           # Auto-generated after deployment (do not edit)
-│   ├── LibraryRegistry.json
-│   └── LibraryCoin.json
+├── abi/
+│   ├── Library.json               # Contract ABI
+│   └── LibraryCoin.json           # Token ABI
 │
 ├── config/
 │   └── settings.py                # Ganache URL, deployed addresses, admin key
@@ -231,6 +233,244 @@ python scripts/data_history_report.py
 
 ---
 
+## Security & Monitoring
+
+### 🔒 Security Overview
+
+The Campus Library Book Registry implements multi-layered security controls:
+
+1. **Smart Contract Access Control** — onlyOwner modifier restricts sensitive operations
+2. **Emergency Pause System** — Admin can immediately halt all user operations
+3. **Event Logging** — All transactions logged immutably on-chain
+4. **Automated Testing** — Comprehensive security test suite validates all controls
+5. **Real-Time Monitoring** — Live alert system detects anomalies instantly
+6. **Integration Testing** — End-to-end workflows verify system integrity
+
+### ✅ Security Test Suite
+
+Run the automated security tests to verify all access controls are functioning:
+
+```bash
+python artifacts/analytics/security_tests.py
+```
+
+**Test Coverage (9 tests across 5 groups):**
+
+**[GROUP 1] Access Control** — Verify onlyOwner restrictions
+- Only owner can add books
+- Only owner can pause/resume  
+- Only owner can transfer ownership
+
+**[GROUP 2] Pause/Resume** — Verify emergency stop functionality
+- Pause prevents borrow operations
+- Resume restores normal operations
+
+**[GROUP 3] Input Validation** — Verify boundary conditions
+- Empty strings rejected in user registration
+- Duplicate user registration handled correctly
+
+**[GROUP 4] Event Logging** — Verify audit trail
+- Events properly logged for user registration
+
+**[GROUP 5] Coin Security** — Verify token access control
+- Only admin can mint coins
+- Zero-amount transfers rejected
+
+**Expected Output:**
+```
+✓ PASS - TEST 1.1: Only owner can add books
+✓ PASS - TEST 1.2: Only owner can pause/resume
+✓ PASS - TEST 1.3: Only owner can transfer ownership
+✓ PASS - TEST 2.1: Pause prevents borrow operations
+✓ PASS - TEST 3.1: Empty strings are rejected
+✓ PASS - TEST 3.2: User registration validation works
+✓ PASS - TEST 4.1: Events are logged for audit trail
+✓ PASS - TEST 5.1: Only admin can mint coins
+✓ PASS - TEST 5.2: Zero-amount transfers are rejected
+
+═══════════════════════════════════════════════════════════════
+TEST SUMMARY
+═══════════════════════════════════════════════════════════════
+Total Tests:  9
+Passed:       9
+Failed:       0
+Pass Rate:    100.0%
+
+✓ ALL TESTS PASSED - SYSTEM SECURE
+```
+
+### 🚨 Live Alert Monitoring
+
+Start the real-time event monitor in a separate terminal:
+
+```bash
+python artifacts/analytics/live_alert_monitor.py
+```
+
+The monitor watches for the following events:
+
+| Event | Trigger | Alert Color |
+|---|---|---|
+| **BookBorrowed** | User borrows book | 🔵 Blue |
+| **BookReturned** | User returns book | 🟢 Green |
+| **UserRegistered** | New user registers | 🟢 Green |
+| **OwnershipTransferred** | Admin ownership changes | 🔴 Red |
+| **Paused** | System enters pause mode | 🔴 Red |
+| **Resumed** | System resumes operation | 🟢 Green |
+| **BookAdded** | New book added by admin | 🔵 Cyan |
+
+**Live Monitor Output Example:**
+```
+[14:23:45] BORROW EVENT
+  📚 Book ID: 1
+  👤 User: 0x398137a...
+  🔗 TxHash: 0x5d42b8fa...
+
+[14:23:52] USER REGISTRATION
+  👤 User: 0x398137a...
+  📝 Name: Alice Smith
+  🔗 TxHash: 0x8c91dd2...
+
+───────────────────────────────────────────────────────────────
+EVENT STATISTICS:
+  📚 Books Borrowed: 2
+  📚 Books Returned: 1
+  👤 Users Registered: 1
+  👑 Ownership Transfers: 0
+  ⏸️  Pause Events: 0
+  ▶️  Resume Events: 0
+  📊 Total Events: 4
+```
+
+**Tips for Live Monitoring:**
+- Open in a dedicated terminal window
+- Leave running during end-to-end testing
+- Verify event details match transactions
+- Use to catch real-time anomalies
+
+### 🧪 Integration Testing
+
+Run complete end-to-end workflow tests:
+
+```bash
+python artifacts/analytics/integration_tests.py
+```
+
+**Workflow Coverage:**
+
+**[WORKFLOW 1] User Onboarding** — Registration → Coin Distribution → Balance Verification
+- User registers with display name
+- Admin mints coins to user
+- User has both ETH and LBRC
+
+**[WORKFLOW 2] Borrow & Return** — Add Book → Borrow → Mark Unavailable → Return → Mark Available
+- Admin adds test book
+- User borrows book (book availability decreases)
+- User returns book (book availability increases)
+
+**[WORKFLOW 3] Admin Operations** — Add Books → Mint Coins → Pause/Resume
+- Admin batch-adds books
+- Admin mints coins to multiple users
+- Admin pauses contract (operations blocked)
+- Admin resumes contract (operations enabled)
+
+**[WORKFLOW 4] Multi-User Activity** — Concurrent Borrowing
+- Multiple users register simultaneously
+- Each user borrows different book
+- System handles concurrent operations
+
+**[WORKFLOW 5] Activity History** — Event Queryability & Data Integrity
+- Verify activity history queryable from blockchain
+- Confirm event data includes all required fields
+
+**Expected Pass Rate:** 100% (all workflows complete successfully)
+
+### 🔐 Security Checklist
+
+Before deploying to production, verify:
+
+**Access Control:**
+- [ ] Only admin can call `addBook()`
+- [ ] Only admin can call `mint()`
+- [ ] Only admin can call `pause()` / `resume()`
+- [ ] Non-admin calls revert with "onlyOwner" error
+- [ ] Ownership transfer properly revokes old admin rights
+
+**State Management:**
+- [ ] `pause()` flag correctly blocks user operations
+- [ ] `resume()` restores full functionality
+- [ ] Emergency stop works instantly
+- [ ] No operations possible during pause
+
+**Event Logging:**
+- [ ] All events emitted with correct parameters
+- [ ] Event logs retained on-chain permanently
+- [ ] Event history queryable by any address
+- [ ] No duplicate event entries
+
+**Data Integrity:**
+- [ ] Book availability counts remain accurate
+- [ ] User balances never go negative
+- [ ] Coin supply controlled (only admin can mint)
+- [ ] Transaction hashes unique and immutable
+
+**Input Validation:**
+- [ ] Empty strings rejected in registration
+- [ ] Invalid book IDs handled gracefully
+- [ ] Zero-amount transfers rejected
+- [ ] Duplicate registrations handled
+
+### ⚠️ Security Warnings
+
+⚠️ **Private Key Management**
+- Never commit private keys to version control
+- Store `ADMIN_PRIVATE_KEY` in environment variables
+- Rotate admin key regularly
+- Use hardware wallet for mainnet
+
+⚠️ **Gas Limits**
+- Set appropriate gas limits to prevent runaway transactions
+- Default gas limit in tests: 100,000
+- Monitor gas usage for batch operations
+
+⚠️ **Contract Upgrades**
+- Current contracts are immutable (no proxy pattern)
+- Bug fixes require redeployment with new address
+- Users must manually migrate to new contract
+- Plan for this in production deployment
+
+⚠️ **Known Limitations**
+- Ganache test blockchain resets on restart
+- Test data not persisted between sessions
+- See "Troubleshooting" section for recovery steps
+
+### 🔧 Troubleshooting Security Issues
+
+**Problem: "onlyOwner" revert on admin functions**
+- [ ] Verify you're using the admin account
+- [ ] Check private key in `api.txt` matches account 0
+- [ ] Confirm Ganache is running with `--deterministic` flag
+
+**Problem: Events not appearing in monitor**
+- [ ] Ensure blockchain transactions completed (check receipt status)
+- [ ] Verify contract address in `api.txt` is correct
+- [ ] Check RPC endpoint URL in `config/settings.py`
+- [ ] Restart monitor if events stuck
+
+**Problem: Security tests failing**
+- [ ] Run `python scripts/deploy.py` to redeploy contracts
+- [ ] Verify Ganache running on correct port (8545)
+- [ ] Check all accounts have sufficient ETH balance
+- [ ] Review contract ABI in `abi/` folder
+
+**Problem: Integration tests hanging**
+- [ ] Increase test timeout (default 60 seconds)
+- [ ] Check Ganache isn't out of gas
+- [ ] Verify network connectivity to 127.0.0.1:8545
+- [ ] Try restarting Ganache completely
+
+---
+
 ## Roles
 
 ### Admin (Privileged User)
@@ -278,7 +518,42 @@ A minimal ERC-20 token (symbol: `LBRC`) where only the Admin can call `mint()`. 
 | Member 2 | Coin & Deployment | ERC-20 coin, deploy script, user registration (Solidity), balance CSV, README |
 | Member 3 | Terminal App | Terminal app, transaction sender, registration (UI), balance checker |
 | Member 4 | Data & Analytics | Admin dashboard, history report, activity history, ownership transfer test |
-| Member 5 | Security & Monitoring | Security tests, live alert monitor, integration tests, demo prep |
+| **Member 5** | **Security & Monitoring** | **🔒 Automated security tests, 🚨 Live alert system, 🧪 Integration tests, 📋 Demo guide** |
+
+### Member 5 - Security & Monitoring Deliverables
+
+**1. Automated Security Tests** (`artifacts/analytics/security_tests.py`)
+- 9 comprehensive security checks across 5 groups
+- Access control verification (onlyOwner restrictions)
+- Pause/resume functionality testing
+- Input validation checks
+- Event logging audit trail
+- Coin minting security
+- Automated PASS/FAIL reporting
+
+**2. Live Alert System** (`artifacts/analytics/live_alert_monitor.py`)
+- Real-time blockchain event monitoring
+- Color-coded alerts for 6 event types
+- Transaction hash verification
+- Live event statistics
+- Deduplication of duplicate alerts
+- 2-second polling interval (configurable)
+
+**3. Integration Testing** (`artifacts/analytics/integration_tests.py`)
+- 5 complete end-to-end workflow tests
+- User onboarding flow
+- Borrow & return cycle
+- Admin operations
+- Multi-user concurrent activity
+- Activity history & audit trail verification
+
+**4. Setup & Demo Guide** (`scripts/demo.py`)
+- Complete Ganache configuration instructions
+- Step-by-step deployment guide
+- Testing checklist & verification procedures
+- Full workflow execution guide
+- Project structure overview
+- Security verification matrix
 
 ---
 
